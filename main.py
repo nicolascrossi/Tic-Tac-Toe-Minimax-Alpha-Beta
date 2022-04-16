@@ -20,16 +20,7 @@ while True:
   
 
 # This function prints the board. This can be customized as necessary.
-def draw_board():
-    print()
-    print(str(board[0]) + "|" + str(board[1]) + "|" + str(board[2]))
-    print("-+-+-")
-    print(str(board[3]) + "|" + str(board[4]) + "|" + str(board[5]))
-    print("-+-+-")
-    print(str(board[6]) + "|" + str(board[7]) + "|" + str(board[8]))
-    print()
-
-def draw_given_board(board):
+def draw_board(board):
     print()
     print(str(board[0]) + "|" + str(board[1]) + "|" + str(board[2]))
     print("-+-+-")
@@ -48,7 +39,7 @@ def other_player(player):
 # This function asks the player for a move input and inserts its mark at that location. It verifies the input is correct and after making the move, it checks if that move was a winning move. If not, this function initiates the next move by calling itself.
 def make_move(player, move):
     board[move] = player
-    draw_board()
+    draw_board(board)
     if not check_win(player):
         move = ask_move(other_player(player))
         make_move( other_player(player), move)
@@ -164,7 +155,7 @@ def heuristic(board: list[int | str], player: str, next_player: str) -> int | fl
 
     return p_two_row * 10 + op_two_row * -10 # Player wants more two in a rows
 
-
+# Recursive alpha beta function
 def alpha_beta(board: list[int | str], alpha: float, beta: float, starting_player: str, cur_player: str, maximizing: bool) -> int | float:
     if check_win_given(board): # We just want to know if the game ended
         return heuristic(board, starting_player, cur_player)
@@ -205,25 +196,26 @@ def alpha_beta(board: list[int | str], alpha: float, beta: float, starting_playe
         
         return value
 
-
+# Manages minimax alpha-beta
 def ai_ab(player: str) -> int:
-    best_move = None
-    best_score = -math.inf
+    best_move = None # The current best move
+    best_score = -math.inf # The score of the current best move
+
     for i in range(0, 9):
-        if type(board[i]) == int:
-            print(f"Testing move {i}")
+        if type(board[i]) == int: # Spot is free
+
             new_board = board.copy()
             new_board[i] = player
 
-            score = alpha_beta(new_board, best_score, math.inf, player, other_player(player), False)
-            print(f"Move has score {score}")
-            if best_move is None or best_score < score:
-                print(f"Updated best move")
+            # Use best score as alpha, so no branch with a lower value is explored
+            score = alpha_beta(new_board, best_score, math.inf, player, other_player(player), False) # Get score of the move
+
+            if best_move is None or best_score < score: # Update the best move
                 best_move = i
                 best_score = score
     
     if best_move is None:
-        return ai_move_random(player)
+        return ai_move_random(player) # If no move was found
 
     return best_move
 
@@ -255,6 +247,7 @@ def check_win(player):
     print("It's a tie!")
     return True
 
+# This function simply checks if the game is over
 def check_win_given(board):
     for combo in win_combinations:
         if board[combo[0]] == board[combo[1]] == board[combo[2]]:
@@ -270,7 +263,7 @@ def check_win_given(board):
 # Initiate the game by drawing the board, telling the player what to do, and making the first move.
 def tic_tac_toe():
     print("Let's play Tic Tac Toe!")
-    draw_board()
+    draw_board(board)
     make_move("X", ask_move("X"))
 
 tic_tac_toe()
